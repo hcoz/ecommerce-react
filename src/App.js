@@ -1,28 +1,35 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Link, Route } from 'react-router-dom';
+import AddProduct from './components/AddProduct.js';
+import ProductsList from './components/ProductsList.js';
+import SingleProduct from './components/SingleProduct.js';
 import './App.css';
 
-class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
+const App = () => {
+  const [products, setProducts] = useState();
+  
+  const addProduct = (product) => {
+    setProducts([...products, product]);
+  };
+
+  return (
+    <Router>
+      <div>
+        <aside>
+          <Link to="/">Products</Link>
+          <Link to="/add-product">Add Product</Link>
+        </aside>
+
+        <main>
+          <Route exact path="/" component={ProductsList} />
+          <Route 
+            path="/add-product"
+            render={({ history }) => <AddProduct addProduct={addProduct} history={history} />} />
+          <Route path="/product/:slug" component={SingleProduct} />
+        </main>
       </div>
-    );
-  }
-}
+    </Router>
+  );
+};
 
 export default App;
