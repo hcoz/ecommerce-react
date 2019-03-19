@@ -6,10 +6,16 @@ import SingleProduct from './components/SingleProduct.js';
 import './App.css';
 
 const App = () => {
-  const [products, setProducts] = useState();
+  const [products, setProducts] = useState([]);
   
   const addProduct = (product) => {
     setProducts([...products, product]);
+  };
+
+  const deleteProduct = (index) => {
+    let tempProducts = [...products];
+    tempProducts.splice(index, 1);
+    setProducts(tempProducts);
   };
 
   return (
@@ -21,11 +27,18 @@ const App = () => {
         </aside>
 
         <main>
-          <Route exact path="/" component={ProductsList} />
+          <Route 
+            exact path="/" 
+            render={({ history }) => <ProductsList products={products} deleteProduct={deleteProduct} history={history} />} 
+          />
           <Route 
             path="/add-product"
-            render={({ history }) => <AddProduct addProduct={addProduct} history={history} />} />
-          <Route path="/product/:slug" component={SingleProduct} />
+            render={({ history }) => <AddProduct addProduct={addProduct} history={history} />} 
+          />
+          <Route 
+            path="/product/:slug"
+            render={({ match }) => <SingleProduct product={products.find((p) => p.slug === match.params.slug)} />} 
+          />
         </main>
       </div>
     </Router>
