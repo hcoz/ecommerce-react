@@ -1,21 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Link, Route } from 'react-router-dom';
 import AddProduct from './components/AddProduct.js';
 import ProductsList from './components/ProductsList.js';
 import SingleProduct from './components/SingleProduct.js';
+import Cart from './components/Cart.js';
 import './App.css';
 
 const App = () => {
   const [products, setProducts] = useState([]);
+  const [cart, setCart] = useState([]);
+
+  useEffect(() => {
+    setProducts(JSON.parse(localStorage.getItem('products')) || []);
+    setCart(JSON.parse(localStorage.getItem('cart')) || []);
+  }, [])
   
   const addProduct = (product) => {
-    setProducts([...products, product]);
+    let newProducts = [...products, product];
+    setProducts(newProducts);
+    localStorage.setItem('products', JSON.stringify(newProducts));
   };
 
   const deleteProduct = (index) => {
     let tempProducts = [...products];
     tempProducts.splice(index, 1);
     setProducts(tempProducts);
+    localStorage.setItem('products', JSON.stringify(tempProducts));
+  };
+
+  const addToCart = ({ product, quantity }) => {
+    let tempCart = [...cart];
+    let index = tempCart.findIndex(itemInCart => itemInCart.product.slug === product.slug);
+    if (index > -1) {
+      tempCart[index].quantity++;
+    } else {
+      tempCart.push({ product: product, quantity: quantity});
+    }
+    setCart(tempCart);
+    localStorage.setItem('cart', JSON.stringify(tempCart));
   };
 
   return (
@@ -37,8 +59,12 @@ const App = () => {
           />
           <Route 
             path="/product/:slug"
-            render={({ match }) => <SingleProduct product={products.find((p) => p.slug === match.params.slug)} />} 
+            render={({ match }) => (
+              <SingleProduct 
+                product={products.find((p) => p.slug === match.params.slug)} 
+                addToCart={addToCart} />)} 
           />
+          <Cart cart={cart} />
         </main>
       </div>
     </Router>
